@@ -46,7 +46,7 @@ def discover_team_projects(team_src_dir: Path) -> list[dict]:
         return teams
     
     # Directories to skip
-    skip_dirs = {"template", ".venv", "__pycache__", "demo", "data"}
+    skip_dirs = {"template", ".venv", "__pycache__", "demo", "data", "SampleTeam"}
     
     for team_dir in sorted(team_src_dir.iterdir()):
         if not team_dir.is_dir():
