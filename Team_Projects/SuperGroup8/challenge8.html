@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GROUP 8 — Global AI Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3"></script> <!-- Updated to latest Chart.js version -->
+<style>
+/* === FUTURISTIC DESIGN SYSTEM === */
+:root {
+--bg-core: #050505;
+--bg-panel: #111111;
+--bg-card: #1a1a1a;
+--border: #333;
+--text-main: #ededed;
+--text-muted: #888;
+--accent-primary: #009EDB; /* UN Blue */
+--accent-secondary: #72BF44; /* Green */
+--accent-alert: #ED1847; /* Red */
+--accent-warn: #F58220; /* Orange */
+--accent-purple: #A05FB4; /* Purple */
+--accent-yellow: #FFC800; /* Yellow */
+--accent-grey: #AEA29A; /* Grey */
+--accent-neutral-grey: #999999; /* Neutral Grey */
+--accent-glow: rgba(0, 158, 219, 0.5); /* UN Blue glow */
+--font-body: 'Roboto', sans-serif;
+--font-code: 'Roboto Mono', monospace;
+--radius-sm: 6px;
+--radius-md: 12px;
+--radius-lg: 20px;
+    }
+/* Reset & Base */
+* { box-sizing: border-box; outline: none; }
+body {
+margin: 0; padding: 0;
+background-color: var(--bg-core);
+color: var(--text-main);
+font-family: var(--font-body);
+overflow-x: hidden;
+font-size: 13px;
+    }
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-core); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* === LAYOUT GRID === */
+.dashboard-wrapper {
+display: grid;
+grid-template-rows: auto auto auto 1fr auto auto auto; /* Added rows for new sections */
+gap: 16px;
+padding: 20px;
+max-width: 1600px;
+margin: 0 auto;
+min-height: 100vh;
+    }
+/* === 1. TOP HEADER & FILTERS === */
+.top-bar {
+display: flex;
+flex-direction: column;
+gap: 12px;
+background: var(--bg-panel);
+padding: 16px;
+border-radius: var(--radius-md);
+border: 1px solid var(--border);
+box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+.header-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid var(--border);
+padding-bottom: 12px;
+    }
+.brand { font-size: 20px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+.brand span { color: var(--accent-primary); }
+.status-dot { width: 8px; height: 8px; background: var(--accent-secondary); border-radius: 50%; box-shadow: 0 0 8px var(--accent-secondary); animation: pulse 2s infinite; }
+/* FILTERS GRID */
+.filters-row {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 10px;
+    }
+.filter-item { display: flex; flex-direction: column; gap: 4px; }
+.filter-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+.custom-select {
+background: var(--bg-card);
+border: 1px solid var(--border);
+color: var(--text-main);
+padding: 8px;
+border-radius: var(--radius-sm);
+font-size: 11px;
+cursor: pointer;
+transition: all 0.2s;
+    }
+.custom-select:hover { border-color: var(--accent-primary); }
+.custom-select:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--accent-glow); }
+/* === 2. KPI ROW === */
+.kpi-row {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 10px;
+    }
+.kpi-card {
+background: var(--bg-panel);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 12px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+position: relative;
+overflow: hidden;
+    }
+.kpi-card::after {
+content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+background: var(--bg-card); transition: 0.3s;
+    }
+.kpi-card:hover::after { background: var(--accent-primary); }
+.kpi-val { font-family: var(--font-code); font-size: 20px; font-weight: 700; margin: 4px 0; }
+.kpi-name { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+.kpi-trend { font-size: 10px; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+.trend-up { color: var(--accent-secondary); }
+.trend-down { color: var(--accent-alert); }
+/* === 3. MAIN CONTENT (MAP + CHARTS) === */
+.main-grid {
+display: grid;
+grid-template-columns: 1.2fr 0.8fr; /* Map gets more space */
+gap: 16px;
+min-height: 500px;
+    }
+/* MAP CONTAINER */
+.map-container {
+background: var(--bg-panel);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+position: relative;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+    }
+.map-header {
+padding: 12px;
+background: rgba(0,0,0,0.3);
+border-bottom: 1px solid var(--border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+z-index: 10;
+    }
+.map-controls { display: flex; gap: 8px; }
+.layer-btn {
+background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted);
+padding: 4px 8px; font-size: 10px; cursor: pointer; border-radius: 4px;
+    }
+.layer-btn.active { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+#worldMap { flex: 1; width: 100%; background: #080808; }
+/* CHARTS GRID */
+.charts-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+grid-template-rows: 1fr 1fr 1fr; /* Added extra row for new histogram chart */
+gap: 12px;
+    }
+.chart-box {
+background: var(--bg-panel);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 12px;
+display: flex;
+flex-direction: column;
+    }
+.chart-title { font-size: 11px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.chart-canvas-wrap { flex: 1; position: relative; min-height: 0; }
+/* Custom Heatmap Table */
+.heatmap-table { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+.hm-cell { background: #333; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; border-radius: 2px; transition: 0.3s; }
+/* === 4. BOTTOM SECTION (PROJECTIONS) === */
+.projections-bar {
+background: var(--bg-panel);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 20px;
+display: grid;
+grid-template-columns: 300px 1fr 300px;
+gap: 24px;
+align-items: center;
+    }
+/* SLIDER */
+.scenario-control { display: flex; flex-direction: column; gap: 10px; }
+.slider-wrap { display: flex; align-items: center; gap: 10px; }
+input[type=range] {
+flex: 1; -webkit-appearance: none; height: 4px; background: #333; border-radius: 2px;
+    }
+input[type=range]::-webkit-slider-thumb {
+-webkit-appearance: none; width: 16px; height: 16px; background: var(--accent-primary); border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--accent-primary);
+    }
+/* OUTPUT CARDS */
+.outputs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.out-card {
+background: rgba(255,255,255,0.03);
+padding: 10px; border-radius: 8px; text-align: center;
+border: 1px solid transparent; transition: 0.3s;
+    }
+.out-card.active { border-color: var(--accent-primary); background: rgba(0, 158, 219, 0.1); }
+.out-val { font-size: 18px; font-weight: 700; color: var(--text-main); }
+.out-lbl { font-size: 10px; color: var(--text-muted); }
+/* INSIGHTS BOX */
+.insights-box {
+background: rgba(114, 191, 68, 0.05);
+border: 1px solid rgba(114, 191, 68, 0.2);
+border-radius: 8px;
+padding: 12px;
+font-size: 11px;
+line-height: 1.5;
+color: #d1fae5;
+    }
+.insights-box strong { color: var(--accent-secondary); }
+/* === AI CHATBOT WIDGET === */
+.ai-widget {
+position: fixed;
+bottom: 20px;
+right: 20px;
+width: 320px;
+background: rgba(20, 20, 20, 0.95);
+backdrop-filter: blur(10px);
+border: 1px solid var(--accent-primary);
+border-radius: var(--radius-md);
+box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+display: flex;
+flex-direction: column;
+z-index: 9999;
+overflow: hidden;
+transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+.ai-header {
+background: linear-gradient(90deg, var(--accent-primary), #0074B7);
+padding: 10px 14px;
+color: white;
+font-weight: 600;
+font-size: 12px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+cursor: pointer; /* Make header clickable to toggle */
+    }
+.ai-body {
+height: 0; /* Start hidden */
+overflow-y: auto;
+font-size: 11px;
+color: #ccc;
+display: flex;
+flex-direction: column;
+gap: 8px;
+transition: height 0.3s ease;
+    }
+.ai-body.open { height: 150px; padding: 12px; } /* Open on click */
+.ai-msg { padding: 6px 10px; border-radius: 6px; max-width: 90%; }
+.ai-msg.bot { background: #222; border-left: 2px solid var(--accent-primary); align-self: flex-start; }
+.ai-msg.user { background: var(--accent-primary); color: white; align-self: flex-end; }
+.ai-input-area {
+padding: 10px;
+border-top: 1px solid var(--border);
+display: flex;
+gap: 8px;
+    }
+.ai-input {
+flex: 1; background: #000; border: 1px solid #333; color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px;
+    }
+.ai-send {
+background: var(--accent-primary); border: none; color: white; padding: 0 10px; border-radius: 4px; cursor: pointer;
+    }
+/* === NEW INSIGHTS SECTION === */
+.insights-section {
+background: var(--bg-panel);
+border: 1px solid var(--border);
+border-radius: var(--radius-md);
+padding: 20px;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 16px;
+}
+.insights-chart-box {
+background: var(--bg-card);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+padding: 12px;
+}
+.disclaimer {
+background: var(--bg-panel);
+padding: 16px;
+border-radius: var(--radius-md);
+border: 1px solid var(--border);
+font-size: 11px;
+color: var(--text-muted);
+text-align: center;
+}
+.disclaimer a { color: var(--accent-primary); }
+/* Animations */
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="dashboard-wrapper">
+<header class="top-bar">
+<div class="header-row">
+<div class="brand">
+<div class="status-dot"></div>
+        GROUP 8 <span>AI READINESS</span> DASHBOARD
+</div>
+<div style="font-size: 11px; color: #666;">
+        SYSTEM STATUS: <span style="color:var(--accent-secondary)">ONLINE</span> | DATA: LIVE (Sources: World Bank, IMF, UNESCO, Custom Datasets)
+</div>
+</div>
+<div class="filters-row">
+<div class="filter-item">
+<label class="filter-label">Region / Country</label>
+<select class="custom-select" id="sel-country" onchange="updateDashboard()">
+<option value="Global">Global View</option>
+<option value="Afghanistan">Afghanistan</option>
+<option value="Albania">Albania</option>
+<option value="Algeria">Algeria</option>
+<option value="Andorra">Andorra</option>
+<option value="Angola">Angola</option>
+<option value="Antigua and Barbuda">Antigua and Barbuda</option>
+<option value="Argentina">Argentina</option>
+<option value="Armenia">Armenia</option>
+<option value="Australia">Australia</option>
+<option value="Austria">Austria</option>
+<option value="Azerbaijan">Azerbaijan</option>
+<option value="Bahamas">Bahamas</option>
+<option value="Bahrain">Bahrain</option>
+<option value="Bangladesh">Bangladesh</option>
+<option value="Barbados">Barbados</option>
+<option value="Belarus">Belarus</option>
+<option value="Belgium">Belgium</option>
+<option value="Belize">Belize</option>
+<option value="Benin">Benin</option>
+<option value="Bhutan">Bhutan</option>
+<option value="Bolivia">Bolivia</option>
+<option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+<option value="Botswana">Botswana</option>
+<option value="Brazil">Brazil</option>
+<option value="Brunei">Brunei</option>
+<option value="Bulgaria">Bulgaria</option>
+<option value="Burkina Faso">Burkina Faso</option>
+<option value="Burundi">Burundi</option>
+<option value="Cabo Verde">Cabo Verde</option>
+<option value="Cambodia">Cambodia</option>
+<option value="Cameroon">Cameroon</option>
+<option value="Canada">Canada</option>
+<option value="Central African Republic">Central African Republic</option>
+<option value="Chad">Chad</option>
+<option value="Chile">Chile</option>
+<option value="China">China</option>
+<option value="Colombia">Colombia</option>
+<option value="Comoros">Comoros</option>
+<option value="Congo (Congo-Brazzaville)">Congo (Congo-Brazzaville)</option>
+<option value="Costa Rica">Costa Rica</option>
+<option value="Croatia">Croatia</option>
+<option value="Cuba">Cuba</option>
+<option value="Cyprus">Cyprus</option>
+<option value="Czechia">Czechia</option>
+<option value="Denmark">Denmark</option>
+<option value="Djibouti">Djibouti</option>
+<option value="Dominica">Dominica</option>
+<option value="Dominican Republic">Dominican Republic</option>
+<option value="Ecuador">Ecuador</option>
+<option value="Egypt">Egypt</option>
+<option value="El Salvador">El Salvador</option>
+<option value="Equatorial Guinea">Equatorial Guinea</option>
+<option value="Eritrea">Eritrea</option>
+<option value="Estonia">Estonia</option>
+<option value="Eswatini">Eswatini</option>
+<option value="Ethiopia">Ethiopia</option>
+<option value="Fiji">Fiji</option>
+<option value="Finland">Finland</option>
+<option value="France">France</option>
+<option value="Gabon">Gabon</option>
+<option value="Gambia">Gambia</option>
+<option value="Georgia">Georgia</option>
+<option value="Germany">Germany</option>
+<option value="Ghana">Ghana</option>
+<option value="Greece">Greece</option>
+<option value="Grenada">Grenada</option>
+<option value="Guatemala">Guatemala</option>
+<option value="Guinea">Guinea</option>
+<option value="Guinea-Bissau">Guinea-Bissau</option>
+<option value="Guyana">Guyana</option>
+<option value="Haiti">Haiti</option>
+<option value="Honduras">Honduras</option>
+<option value="Hungary">Hungary</option>
+<option value="Iceland">Iceland</option>
+<option value="India">India</option>
+<option value="Indonesia">Indonesia</option>
+<option value="Iran">Iran</option>
+<option value="Iraq">Iraq</option>
+<option value="Ireland">Ireland</option>
+<option value="Israel">Israel</option>
+<option value="Italy">Italy</option>
+<option value="Jamaica">Jamaica</option>
+<option value="Japan">Japan</option>
+<option value="Jordan">Jordan</option>
+<option value="Kazakhstan">Kazakhstan</option>
+<option value="Kenya">Kenya</option>
+<option value="Kiribati">Kiribati</option>
+<option value="Kuwait">Kuwait</option>
+<option value="Kyrgyzstan">Kyrgyzstan</option>
+<option value="Laos">Laos</option>
+<option value="Latvia">Latvia</option>
+<option value="Lebanon">Lebanon</option>
+<option value="Lesotho">Lesotho</option>
+<option value="Liberia">Liberia</option>
+<option value="Libya">Libya</option>
+<option value="Liechtenstein">Liechtenstein</option>
+<option value="Lithuania">Lithuania</option>
+<option value="Luxembourg">Luxembourg</option>
+<option value="Madagascar">Madagascar</option>
+<option value="Malawi">Malawi</option>
+<option value="Malaysia">Malaysia</option>
+<option value="Maldives">Maldives</option>
+<option value="Mali">Mali</option>
+<option value="Malta">Malta</option>
+<option value="Marshall Islands">Marshall Islands</option>
+<option value="Mauritania">Mauritania</option>
+<option value="Mauritius">Mauritius</option>
+<option value="Mexico">Mexico</option>
+<option value="Micronesia">Micronesia</option>
+<option value="Moldova">Moldova</option>
+<option value="Monaco">Monaco</option>
+<option value="Mongolia">Mongolia</option>
+<option value="Montenegro">Montenegro</option>
+<option value="Morocco">Morocco</option>
+<option value="Mozambique">Mozambique</option>
+<option value="Myanmar">Myanmar</option>
+<option value="Namibia">Namibia</option>
+<option value="Nauru">Nauru</option>
+<option value="Nepal">Nepal</option>
+<option value="Netherlands">Netherlands</option>
+<option value="New Zealand">New Zealand</option>
+<option value="Nicaragua">Nicaragua</option>
+<option value="Niger">Niger</option>
+<option value="Nigeria">Nigeria</option>
+<option value="North Korea">North Korea</option>
+<option value="North Macedonia">North Macedonia</option>
+<option value="Norway">Norway</option>
+<option value="Oman">Oman</option>
+<option value="Pakistan">Pakistan</option>
+<option value="Palau">Palau</option>
+<option value="Panama">Panama</option>
+<option value="Papua New Guinea">Papua New Guinea</option>
+<option value="Paraguay">Paraguay</option>
+<option value="Peru">Peru</option>
+<option value="Philippines">Philippines</option>
+<option value="Poland">Poland</option>
+<option value="Portugal">Portugal</option>
+<option value="Qatar">Qatar</option>
+<option value="Romania">Romania</option>
+<option value="Russia">Russia</option>
+<option value="Rwanda">Rwanda</option>
+<option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
+<option value="Saint Lucia">Saint Lucia</option>
+<option value="Saint Vincent and the Grenadines">Saint Vincent and the Grenadines</option>
+<option value="Samoa">Samoa</option>
+<option value="San Marino">San Marino</option>
+<option value="Sao Tome and Principe">Sao Tome and Principe</option>
+<option value="Saudi Arabia">Saudi Arabia</option>
+<option value="Senegal">Senegal</option>
+<option value="Serbia">Serbia</option>
+<option value="Seychelles">Seychelles</option>
+<option value="Sierra Leone">Sierra Leone</option>
+<option value="Singapore">Singapore</option>
+<option value="Slovakia">Slovakia</option>
+<option value="Slovenia">Slovenia</option>
+<option value="Solomon Islands">Solomon Islands</option>
+<option value="Somalia">Somalia</option>
+<option value="South Africa">South Africa</option>
+<option value="South Korea">South Korea</option>
+<option value="South Sudan">South Sudan</option>
+<option value="Spain">Spain</option>
+<option value="Sri Lanka">Sri Lanka</option>
+<option value="Sudan">Sudan</option>
+<option value="Suriname">Suriname</option>
+<option value="Sweden">Sweden</option>
+<option value="Switzerland">Switzerland</option>
+<option value="Syria">Syria</option>
+<option value="Taiwan">Taiwan</option>
+<option value="Tajikistan">Tajikistan</option>
+<option value="Tanzania">Tanzania</option>
+<option value="Thailand">Thailand</option>
+<option value="Timor-Leste">Timor-Leste</option>
+<option value="Togo">Togo</option>
+<option value="Tonga">Tonga</option>
+<option value="Trinidad and Tobago">Trinidad and Tobago</option>
+<option value="Tunisia">Tunisia</option>
+<option value="Turkey">Turkey</option>
+<option value="Turkmenistan">Turkmenistan</option>
+<option value="Tuvalu">Tuvalu</option>
+<option value="Uganda">Uganda</option>
+<option value="Ukraine">Ukraine</option>
+<option value="United Arab Emirates">United Arab Emirates</option>
+<option value="United Kingdom">United Kingdom</option>
+<option value="United States">United States</option>
+<option value="Uruguay">Uruguay</option>
+<option value="Uzbekistan">Uzbekistan</option>
+<option value="Vanuatu">Vanuatu</option>
+<option value="Vatican City">Vatican City</option>
+<option value="Venezuela">Venezuela</option>
+<option value="Vietnam">Vietnam</option>
+<option value="Yemen">Yemen</option>
+<option value="Zambia">Zambia</option>
+<option value="Zimbabwe">Zimbabwe</option>
+<option value="EU">European Union</option> <!-- Kept aggregates -->
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Industry</label>
+<select class="custom-select" id="sel-industry" onchange="updateDashboard()">
+<option value="All">All Sectors</option>
+<option value="Total Labor Force Participation Rate">Total Labor Force Participation Rate</option>
+<option value="Female Labor Force Participation Rate">Female Labor Force Participation Rate</option>
+<option value="Agriculture">Agriculture</option>
+<option value="Industry">Industry</option>
+<option value="Services">Services</option>
+<option value="Mining">Mining</option>
+<option value="Manufacturing">Manufacturing</option>
+<option value="Electricity and Utilities">Electricity and Utilities</option>
+<option value="Construction">Construction</option>
+<option value="Commerce (Wholesale & Retail)">Commerce (Wholesale & Retail)</option>
+<option value="Transport & Communication">Transport & Communication</option>
+<option value="Financial & Business Services">Financial & Business Services</option>
+<option value="Public Administration">Public Administration</option>
+<option value="Other Services">Other Services</option>
+<option value="Tech">Technology & ICT</option>
+<option value="Finance">Finance & Banking</option>
+<option value="Health">Healthcare</option>
+<option value="Mfg">Manufacturing (Legacy)</option>
+<option value="Agri">Agriculture (Legacy)</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Gender</label>
+<select class="custom-select" id="sel-gender" onchange="updateDashboard()">
+<option value="All">All Genders</option>
+<option value="Male">Male</option>
+<option value="Female">Female</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Age Group</label>
+<select class="custom-select" id="sel-age" onchange="updateDashboard()">
+<option value="All">All Ages</option>
+<option value="18-25">18-25 (Gen Z)</option>
+<option value="26-40">26-40 (Millennials)</option>
+<option value="41-60">41-60 (Gen X)</option>
+<option value="60+">60+ (Boomers)</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Skill Level</label>
+<select class="custom-select" id="sel-skill" onchange="updateDashboard()">
+<option value="All">All Levels</option>
+<option value="Basic">Basic Digital</option>
+<option value="Intermediate">Intermediate</option>
+<option value="Advanced">Advanced / AI Expert</option>
+<option value="Data Literacy">Data Literacy</option>
+<option value="AI Ethics">AI Ethics</option>
+<option value="Coding">Coding</option>
+<option value="Cloud Computing">Cloud Computing</option>
+<option value="Soft Skills">Soft Skills</option>
+<option value="Machine Learning">Machine Learning</option>
+<option value="Cybersecurity">Cybersecurity</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Urban / Rural</label>
+<select class="custom-select" id="sel-urban" onchange="updateDashboard()">
+<option value="All">National Avg</option>
+<option value="Urban">Urban Centers</option>
+<option value="Rural">Rural Areas</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Development Level</label>
+<select class="custom-select" id="sel-dev" onchange="updateDashboard()">
+<option value="All">All Levels</option>
+<option value="Developed">Developed</option>
+<option value="Developing">Developing</option>
+<option value="Least Developed">Least Developed</option>
+</select>
+</div>
+<div class="filter-item">
+<label class="filter-label">Time Range</label>
+<select class="custom-select" id="sel-time" onchange="updateDashboard()">
+<option value="2020">2020 (Past)</option>
+<option value="2023">2023 (Historical)</option>
+<option value="2024">2024 (Current)</option>
+<option value="2025">2025 (Forecast)</option>
+<option value="2030">2030 (Long Term Projection)</option>
+</select>
+</div>
+</div>
+</header>
+<section class="kpi-row">
+<div class="kpi-card" style="border-left: 2px solid var(--accent-primary);">
+<span class="kpi-name">AI Training</span>
+<div class="kpi-val" id="kpi-training">--%</div>
+<div class="kpi-trend trend-up"><i data-lucide="trending-up" size="10"></i> +2.4%</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-secondary);">
+<span class="kpi-name">Skill Readiness</span>
+<div class="kpi-val" id="kpi-skills">--/100</div>
+<div class="kpi-trend trend-up"><i data-lucide="minus" size="10"></i> Stable</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-purple);">
+<span class="kpi-name">Connectivity</span>
+<div class="kpi-val" id="kpi-connect">--%</div>
+<div class="kpi-trend trend-up"><i data-lucide="wifi" size="10"></i> High</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-warn);">
+<span class="kpi-name">AI Adoption</span>
+<div class="kpi-val" id="kpi-adoption">--%</div>
+<div class="kpi-trend trend-up"><i data-lucide="trending-up" size="10"></i> Rapid</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-alert);">
+<span class="kpi-name">Productivity</span>
+<div class="kpi-val" id="kpi-prod">--%</div>
+<div class="kpi-trend trend-up"><i data-lucide="zap" size="10"></i> Impact</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-yellow);">
+<span class="kpi-name">Investment</span>
+<div class="kpi-val" id="kpi-invest">$0B</div>
+<div class="kpi-trend trend-down" id="kpi-invest-trend"><i data-lucide="arrow-down" size="10"></i> Mixed</div>
+</div>
+<div class="kpi-card" style="border-left: 2px solid var(--accent-alert);">
+<span class="kpi-name">Risk Score</span>
+<div class="kpi-val" id="kpi-risk">0.0</div>
+<div class="kpi-trend trend-down"><i data-lucide="alert-triangle" size="10"></i> Caution</div>
+</div>
+</section>
+<section class="main-grid">
+<div class="map-container">
+<div class="map-header">
+<span style="font-weight:600; font-size:11px; color:white;"><i data-lucide="map" size="12"></i> GEOSPATIAL ANALYSIS</span>
+<div class="map-controls">
+<button class="layer-btn active" onclick="setMapLayer('ready')">Readiness</button>
+<button class="layer-btn" onclick="setMapLayer('demo')">Demographics</button>
+<button class="layer-btn" onclick="setMapLayer('tech')">Tech Pen.</button>
+<button class="layer-btn" onclick="setMapLayer('adopt')">AI Adoption</button>
+<button class="layer-btn" onclick="setMapLayer('demand')">Demand/Supply</button> <!-- New layer -->
+</div>
+</div>
+<div id="worldMap"></div>
+</div>
+<div class="charts-grid">
+<div class="chart-box">
+<div class="chart-title"><i data-lucide="radar" size="12"></i> SKILL COMPOSITION</div>
+<div class="chart-canvas-wrap"><canvas id="radarChart"></canvas></div>
+</div>
+<div class="chart-box">
+<div class="chart-title"><i data-lucide="grid" size="12"></i> ACCESS HEATMAP (Regional)</div>
+<div class="chart-canvas-wrap">
+<div class="heatmap-table" id="accessHeatmap">
+</div>
+</div>
+</div>
+<div class="chart-box">
+<div class="chart-title"><i data-lucide="bar-chart-2" size="12"></i> INDUSTRY PENETRATION</div>
+<div class="chart-canvas-wrap"><canvas id="barChart"></canvas></div>
+</div>
+<div class="chart-box">
+<div class="chart-title"><i data-lucide="trending-up" size="12"></i> AI GROWTH CURVE</div>
+<div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+</div>
+<div class="chart-box"> <!-- New chart for histogram of AI adoption per country -->
+<div class="chart-title"><i data-lucide="bar-chart-horizontal" size="12"></i> AI ADOPTION HISTOGRAM (Countries)</div>
+<div class="chart-canvas-wrap"><canvas id="histogramChart"></canvas></div>
+</div>
+</div>
+</section>
+<section class="projections-bar">
+<div class="scenario-control">
+<div style="font-weight:700; color:var(--text-main);">SCENARIO PLANNING</div>
+<div class="slider-wrap">
+<span style="font-size:10px; color:#888;">Low Inv.</span>
+<input type="range" min="1" max="3" value="2" id="scenarioSlider" oninput="updateProjections()">
+<span style="font-size:10px; color:#888;">High Inv.</span>
+</div>
+<div style="text-align:center; font-size:10px; color:var(--accent-primary);" id="scenarioLabel">Baseline Scenario</div>
+</div>
+<div class="outputs-grid">
+<div class="out-card active">
+<div class="out-val" id="out-jobs">0M</div>
+<div class="out-lbl">Jobs Created</div>
+</div>
+<div class="out-card">
+<div class="out-val" id="out-gdp">+0%</div>
+<div class="out-lbl">GDP Impact</div>
+</div>
+<div class="out-card">
+<div class="out-val" id="out-sme">Med</div>
+<div class="out-lbl">SME Growth</div>
+</div>
+<div class="out-card">
+<div class="out-val" id="out-risk">Low</div>
+<div class="out-lbl">Risk Change</div>
+</div>
+</div>
+<div class="insights-box" id="aiInsights">
+<strong>AI ANALYSIS:</strong> Select a filter to generate insights...
+</div>
+</section>
+<section class="insights-section">
+<div class="insights-chart-box">
+<div class="chart-title"><i data-lucide="activity" size="12"></i> DEMAND VS SUPPLY TRENDS</div>
+<div class="chart-canvas-wrap"><canvas id="demandSupplyChart"></canvas></div>
+</div>
+<div class="insights-chart-box">
+<div class="chart-title"><i data-lucide="bar-chart" size="12"></i> SKILL GAPS (MISMATCH INDEX)</div>
+<div class="chart-canvas-wrap"><canvas id="skillGapsChart"></canvas></div>
+</div>
+<div class="insights-chart-box">
+<div class="chart-title"><i data-lucide="users" size="12"></i> INCLUSION GAPS</div>
+<div class="chart-canvas-wrap"><canvas id="inclusionGapsChart"></canvas></div>
+</div>
+<div class="insights-chart-box">
+<div class="chart-title"><i data-lucide="alert-octagon" size="12"></i> BIGGEST CHALLENGES</div>
+<div class="chart-canvas-wrap"><canvas id="challengesChart"></canvas></div>
+</div>
+</section>
+<footer class="disclaimer">
+Data sources: World Bank, IMF, UNESCO, Custom Datasets, OCHA-inspired visualizations. Last updated: December 03, 2025. Disclaimer: These visualizations are for illustrative purposes and based on simulated data.
+</footer>
+<div class="ai-widget" id="aiWidget">
+<div class="ai-header" onclick="toggleAiBody()">
+<div style="display:flex; align-items:center; gap:6px;"><i data-lucide="bot" size="14"></i> GROUP 8 ASSISTANT</div>
+<i data-lucide="minimize-2" size="14" style="cursor:pointer;"></i>
+</div>
+<div class="ai-body" id="chatBody">
+<div class="ai-msg bot">Hello. I control this dashboard. Type "Show me China" or "Analyze Healthcare" to filter data instantly. Suggesting: Clean data for USA?</div>
+</div>
+<div class="ai-input-area">
+<input type="text" class="ai-input" id="chatInput" placeholder="Type a command..." onkeydown="if(event.key==='Enter') sendChat()">
+<button class="ai-send" onclick="sendChat()">></button>
+</div>
+</div>
+</div>
+<script>
+// === 1. INITIALIZATION ===
+lucide.createIcons();
+// === 2. DATA SIMULATION LOGIC ===
+// Expanded BASE_DATA with simulated values from "datasets" (e.g., World Bank-inspired). For all countries, generate dynamically if not defined.
+const BASE_DATA = {
+'Global': { train: 32, skill: 55, conn: 68, adopt: 24, prod: 12, inv: 150, risk: 4.5, demand: 60, supply: 50, mismatch: 20, inclusionYouth: 40, inclusionFemale: 45, inclusionLowIncome: 30, challengeAlign: 50 },
+'United States': { train: 55, skill: 88, conn: 95, adopt: 52, prod: 22, inv: 320, risk: 3.2, demand: 80, supply: 75, mismatch: 10, inclusionYouth: 70, inclusionFemale: 65, inclusionLowIncome: 60, challengeAlign: 30 },
+'China': { train: 48, skill: 76, conn: 82, adopt: 58, prod: 24, inv: 280, risk: 5.1, demand: 85, supply: 70, mismatch: 15, inclusionYouth: 60, inclusionFemale: 55, inclusionLowIncome: 50, challengeAlign: 40 },
+'India': { train: 38, skill: 58, conn: 65, adopt: 32, prod: 18, inv: 85, risk: 4.2, demand: 70, supply: 50, mismatch: 25, inclusionYouth: 50, inclusionFemale: 40, inclusionLowIncome: 30, challengeAlign: 60 },
+'Brazil': { train: 25, skill: 45, conn: 72, adopt: 18, prod: 8, inv: 24, risk: 4.8, demand: 60, supply: 45, mismatch: 20, inclusionYouth: 45, inclusionFemale: 50, inclusionLowIncome: 35, challengeAlign: 55 },
+'Nigeria': { train: 12, skill: 28, conn: 45, adopt: 8, prod: 4, inv: 5, risk: 5.5, demand: 50, supply: 30, mismatch: 30, inclusionYouth: 30, inclusionFemale: 25, inclusionLowIncome: 20, challengeAlign: 70 },
+'Japan': { train: 42, skill: 85, conn: 96, adopt: 45, prod: 14, inv: 110, risk: 2.5, demand: 75, supply: 80, mismatch: 5, inclusionYouth: 65, inclusionFemale: 60, inclusionLowIncome: 55, challengeAlign: 25 },
+'Afghanistan': { train: 5, skill: 15, conn: 20, adopt: 3, prod: 2, inv: 1, risk: 6.0, demand: 20, supply: 10, mismatch: 40, inclusionYouth: 20, inclusionFemale: 15, inclusionLowIncome: 10, challengeAlign: 80 },
+'Albania': { train: 20, skill: 40, conn: 60, adopt: 15, prod: 5, inv: 10, risk: 4.0, demand: 40, supply: 35, mismatch: 15, inclusionYouth: 40, inclusionFemale: 35, inclusionLowIncome: 30, challengeAlign: 50 },
+// ... (Simulated for all; in practice, add all with random/varied values based on development level)
+  };
+// Function to get data for any country (simulate if not in BASE_DATA)
+function getCountryData(country) {
+  if (BASE_DATA[country]) return BASE_DATA[country];
+  // Simulate based on name hash or default
+  const hash = country.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  return { train: (hash % 50) + 10, skill: (hash % 40) + 30, conn: (hash % 60) + 20, adopt: (hash % 40) + 10, prod: (hash % 20) + 5, inv: (hash % 200) + 10, risk: ((hash % 3) + 3).toFixed(1), demand: (hash % 50) + 30, supply: (hash % 40) + 20, mismatch: (hash % 30) + 10, inclusionYouth: (hash % 40) + 20, inclusionFemale: (hash % 35) + 20, inclusionLowIncome: (hash % 30) + 15, challengeAlign: (hash % 50) + 20 };
+}
+const MULTIPLIERS = {
+Industry: { 'All': 1, 'Total Labor Force Participation Rate': 1.1, 'Female Labor Force Participation Rate': 1.05, 'Agriculture': 0.6, 'Industry': 0.9, 'Services': 1.2, 'Mining': 0.8, 'Manufacturing': 0.95, 'Electricity and Utilities': 1.0, 'Construction': 0.85, 'Commerce (Wholesale & Retail)': 1.1, 'Transport & Communication': 1.15, 'Financial & Business Services': 1.3, 'Public Administration': 1.0, 'Other Services': 0.9, 'Tech': 1.5, 'Finance': 1.3, 'Health': 1.1, 'Mfg': 0.9, 'Agri': 0.6 },
+Urban: { 'All': 1, 'Urban': 1.2, 'Rural': 0.6 },
+Skill: { 'All': 1, 'Basic': 0.5, 'Intermediate': 1.0, 'Advanced': 1.8, 'Data Literacy': 1.2, 'AI Ethics': 1.1, 'Coding': 1.4, 'Cloud Computing': 1.3, 'Soft Skills': 1.0, 'Machine Learning': 1.6, 'Cybersecurity': 1.5 },
+Dev: { 'All': 1, 'Developed': 1.5, 'Developing': 1.0, 'Least Developed': 0.5 }
+  };
+// === 3. CHART & MAP VARIABLES ===
+let map, geoLayer;
+let radarChart, barChart, lineChart, histogramChart, demandSupplyChart, skillGapsChart, inclusionGapsChart, challengesChart;
+// Country to GeoJSON name mapping (partial; expand as needed)
+const COUNTRY_MAP = {
+  'United States': 'USA',
+  'China': 'CHN',
+  'India': 'IND',
+  'Brazil': 'BRA',
+  'Nigeria': 'NGA',
+  'Japan': 'JPN',
+  // Add more mappings for name differences
+};
+// Pie colors from OCHA
+const PIE_COLORS = ['#009EDB', '#72BF44', '#FFC800', '#F58220', '#ED1847', '#A05FB4', '#AEA29A'];
+// === 4. SETUP FUNCTIONS ===
+window.onload = () => {
+initMap();
+initCharts();
+updateDashboard(); // Initial load
+  };
+// --- MAP ---
+function initMap() {
+map = L.map('worldMap', { zoomControl: false, attributionControl: false }).setView([20, 0], 2);
+// Dark matter style
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png').addTo(map);
+// Fetch GeoJSON
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+      .then(res => res.json())
+      .then(data => {
+geoLayer = L.geoJson(data, {
+style: styleMapFeature,
+onEachFeature: (feature, layer) => {
+const countryName = feature.properties.name;
+const data = getCountryData(countryName); // Use simulated data
+const popupContent = `
+<strong>${countryName}</strong><br>AI Adoption: ${data.adopt}%<br>Readiness: ${data.skill}/100
+<br><canvas id="popupHistogram-${countryName}" width="200" height="100"></canvas>
+<br><canvas id="popupGrowth-${countryName}" width="200" height="100"></canvas>
+<br><canvas id="popupPie-${countryName}" width="200" height="200"></canvas>
+<br>Different AI Used: Machine Learning (${Math.random()*100|0}%), NLP (${Math.random()*100|0}%), Computer Vision (${Math.random()*100|0}%), Robotics (${Math.random()*100|0}%)
+`;
+layer.bindPopup(popupContent);
+layer.on('popupopen', () => {
+  // Draw histogram for AI adoption
+  const histCtx = document.getElementById(`popupHistogram-${countryName}`).getContext('2d');
+  new Chart(histCtx, {
+    type: 'line',
+    data: {
+      labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+      datasets: [{ label: 'Adoption %', data: [data.adopt*0.5, data.adopt*0.6, data.adopt*0.7, data.adopt*0.8, data.adopt*0.9, data.adopt], borderColor: '#009EDB' }]
+    },
+    options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+  });
+  // Draw growth trend to 2025 and projection to 2030
+  const growthCtx = document.getElementById(`popupGrowth-${countryName}`).getContext('2d');
+  new Chart(growthCtx, {
+    type: 'line',
+    data: {
+      labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2030'],
+      datasets: [{ label: 'AI Growth', data: [10, 20, 30, 40, 50, 60, 80].map(v => v + Math.random()*10), borderColor: '#72BF44', borderDash: [5, 5] }]
+    },
+    options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
+  });
+  // Draw pie for variables
+  const pieCtx = document.getElementById(`popupPie-${countryName}`).getContext('2d');
+  new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+      labels: ['Training', 'Skills', 'Connectivity', 'Adoption', 'Productivity', 'Investment', 'Risk'],
+      datasets: [{ data: [data.train, data.skill, data.conn, data.adopt, data.prod, data.inv/10, data.risk*10], backgroundColor: PIE_COLORS }]
+    },
+    options: { plugins: { legend: { position: 'right' } } }
+  });
+});
+layer.on('click', () => {
+document.getElementById('sel-country').value = countryName || "Global";
+updateDashboard();
+addChatMsg("User", `Selected ${countryName} on map`);
+addChatMsg("Bot", `Filtering data for ${countryName}... Suggesting: Clean view for ${countryName}?`);
+             });
+          }
+        }).addTo(map);
+        // Add pie markers on top of countries
+        addPieMarkers(data.features);
+      });
+  }
+function addPieMarkers(features) {
+  features.forEach(feature => {
+    const countryName = feature.properties.name;
+    const data = getCountryData(countryName);
+    const bounds = L.geoJSON(feature).getBounds();
+    const center = bounds.getCenter();
+    // Create small canvas for pie icon
+    const canvas = document.createElement('canvas');
+    canvas.width = 40; canvas.height = 40;
+    const ctx = canvas.getContext('2d');
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        datasets: [{ data: [data.train, data.skill, data.conn, data.adopt, data.prod, data.inv/10, data.risk*10], backgroundColor: PIE_COLORS }]
+      },
+      options: { plugins: { legend: { display: false } }, responsive: false }
+    });
+    const icon = L.icon({
+      iconUrl: canvas.toDataURL(),
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+    L.marker(center, { icon }).addTo(map);
+  });
+}
+function styleMapFeature(feature) {
+const country = feature.properties.name;
+const data = getCountryData(country);
+const val = data.adopt; // Default to adoption
+return {
+fillColor: val > 50 ? '#009EDB' : val > 30 ? '#72BF44' : '#ED1847',
+weight: 1,
+opacity: 1,
+color: '#111',
+fillOpacity: val/100 * 0.7 + 0.1
+    };
+  }
+function setMapLayer(type) {
+document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+event.target.classList.add('active');
+if(geoLayer) {
+geoLayer.eachLayer(layer => {
+const country = layer.feature.properties.name;
+const data = getCountryData(country);
+let val;
+if (type === 'ready') val = data.skill;
+else if (type === 'demo') val = data.prod;
+else if (type === 'tech') val = data.conn;
+else if (type === 'adopt') val = data.adopt;
+else if (type === 'demand') val = data.demand - data.supply; // Heat for demand/supply
+const color = val > 50 ? '#009EDB' : val > 0 ? '#72BF44' : '#ED1847';
+layer.setStyle({ fillColor: color, fillOpacity: Math.abs(val)/100 * 0.6 + 0.2 });
+        });
+    }
+  }
+function highlightCountry(country) {
+  if (geoLayer) {
+    geoLayer.eachLayer(layer => {
+      const featName = layer.feature.properties.name;
+      const mappedName = Object.keys(COUNTRY_MAP).find(key => COUNTRY_MAP[key] === featName) || featName;
+      if (mappedName === country) {
+        layer.setStyle({ weight: 3, color: '#FFC800', fillOpacity: 0.9 });
+        map.fitBounds(layer.getBounds());
+      } else {
+        layer.setStyle({ weight: 1, color: '#111', fillOpacity: 0.5 });
+      }
+    });
+  }
+}
+// --- CHARTS ---
+function initCharts() {
+// Chart defaults
+Chart.defaults.color = '#AEA29A';
+Chart.defaults.borderColor = '#999999';
+// 1. Radar
+radarChart = new Chart(document.getElementById('radarChart'), {
+type: 'radar',
+data: {
+labels: ['Data Lit.', 'AI Ethics', 'Coding', 'Cloud', 'Soft Skills', 'Machine Learning', 'Cybersecurity'], // Expanded skillsets
+datasets: [{
+label: 'Current',
+data: [65, 59, 90, 81, 56, 70, 75],
+fill: true,
+backgroundColor: 'rgba(0, 158, 219, 0.2)',
+borderColor: '#009EDB',
+pointBackgroundColor: '#009EDB'
+        }]
+      },
+options: { scales: { r: { grid: { color: '#333' }, angleLines: { color: '#333' } } } }
+    });
+// 2. Bar
+barChart = new Chart(document.getElementById('barChart'), {
+type: 'bar',
+data: {
+labels: ['Total LFPR', 'Female LFPR', 'Agri', 'Ind', 'Serv', 'Mining', 'Mfg', 'Elec/Util', 'Const', 'Comm', 'Trans/Comm', 'Fin/Bus', 'Pub Admin', 'Other'], // Expanded industries
+datasets: [{
+label: 'Penetration %',
+data: [85, 72, 60, 45, 30, 40, 50, 55, 65, 70, 75, 80, 85, 90],
+backgroundColor: PIE_COLORS.concat(PIE_COLORS) // Repeat colors
+        }]
+      },
+options: { plugins: { legend: { display: false } } }
+    });
+// 3. Line
+lineChart = new Chart(document.getElementById('lineChart'), {
+type: 'line',
+data: {
+labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2030'], // Expanded time for projections
+datasets: [{
+label: 'Growth',
+data: [10, 15, 25, 40, 65, 85, 95],
+borderColor: '#72BF44',
+tension: 0.4
+        }]
+      },
+options: { plugins: { legend: { display: false } } }
+    });
+// 4. Histogram
+histogramChart = new Chart(document.getElementById('histogramChart'), {
+type: 'bar',
+data: {
+labels: ['Global', 'USA', 'China', 'India', 'Brazil', 'Nigeria', 'Japan'], 
+datasets: [{
+label: 'AI Adoption %',
+data: [24, 52, 58, 32, 18, 8, 45],
+backgroundColor: '#009EDB'
+        }]
+      },
+options: { plugins: { legend: { display: false } } }
+    });
+// New Insights Charts
+demandSupplyChart = new Chart(document.getElementById('demandSupplyChart'), {
+type: 'line',
+data: {
+labels: ['Global', 'USA', 'China', 'India', 'Brazil', 'Nigeria', 'Japan'],
+datasets: [
+{ label: 'Demand', data: [60, 80, 85, 70, 60, 50, 75], borderColor: '#009EDB' },
+{ label: 'Supply', data: [50, 75, 70, 50, 45, 30, 80], borderColor: '#ED1847' }
+]
+},
+options: { plugins: { legend: { display: true } } }
+});
+skillGapsChart = new Chart(document.getElementById('skillGapsChart'), {
+type: 'bar',
+data: {
+labels: ['Global', 'USA', 'China', 'India', 'Brazil', 'Nigeria', 'Japan'],
+datasets: [{ label: 'Mismatch Index', data: [20, 10, 15, 25, 20, 30, 5], backgroundColor: '#F58220' }]
+},
+options: { plugins: { legend: { display: false } } }
+});
+inclusionGapsChart = new Chart(document.getElementById('inclusionGapsChart'), {
+type: 'radar',
+data: {
+labels: ['Youth', 'Female', 'Low-Income'],
+datasets: [
+{ label: 'Global', data: [40, 45, 30], fill: true, backgroundColor: 'rgba(160, 95, 180, 0.2)', borderColor: '#A05FB4' },
+{ label: 'USA', data: [70, 65, 60], fill: true, backgroundColor: 'rgba(0, 158, 219, 0.2)', borderColor: '#009EDB' }
+] // Simulate more
+},
+options: { scales: { r: { beginAtZero: true } } }
+});
+challengesChart = new Chart(document.getElementById('challengesChart'), {
+type: 'bar',
+data: {
+labels: ['Align Training', 'Connectivity', 'Policy'],
+datasets: [{ label: 'Challenge Score', data: [50, 40, 60], backgroundColor: '#ED1847' }]
+},
+options: { plugins: { legend: { display: false } } }
+});
+  }
+// === 5. CORE UPDATE LOGIC ===
+function updateDashboard() {
+// 1. Get Filter Values
+const country = document.getElementById('sel-country').value;
+const industry = document.getElementById('sel-industry').value;
+const urban = document.getElementById('sel-urban').value;
+const dev = document.getElementById('sel-dev').value;
+const time = document.getElementById('sel-time').value;
+// 2. Calculate Data (include time multiplier for past/now/projection)
+let timeMult = 1;
+if (time === '2020') timeMult = 0.8; // Past
+else if (time === '2023') timeMult = 0.9;
+else if (time === '2024') timeMult = 1.0; // Now
+else if (time === '2025') timeMult = 1.1; // Forecast
+else if (time === '2030') timeMult = 1.3; // Projection
+let data = getCountryData(country);
+const indMult = MULTIPLIERS.Industry[industry] || 1;
+const urbMult = MULTIPLIERS.Urban[urban] || 1;
+const devMult = MULTIPLIERS.Dev[dev] || 1;
+const finalData = {
+train: Math.min(100, data.train * indMult * urbMult * devMult * timeMult).toFixed(1),
+skill: Math.min(100, data.skill * urbMult * devMult * timeMult).toFixed(0),
+conn: Math.min(100, data.conn * urbMult * devMult * timeMult).toFixed(0),
+adopt: Math.min(100, data.adopt * indMult * devMult * timeMult).toFixed(0),
+prod: Math.min(100, data.prod * indMult * devMult * timeMult).toFixed(0),
+invest: (data.inv * indMult * timeMult).toFixed(0),
+risk: (data.risk / (indMult * devMult) * (timeMult > 1 ? 1.1 : 1)).toFixed(1),
+demand: Math.min(100, data.demand * indMult * timeMult).toFixed(0),
+supply: Math.min(100, data.supply * indMult * timeMult).toFixed(0),
+mismatch: Math.min(100, data.mismatch * timeMult).toFixed(0),
+inclusionYouth: Math.min(100, data.inclusionYouth * timeMult).toFixed(0),
+inclusionFemale: Math.min(100, data.inclusionFemale * timeMult).toFixed(0),
+inclusionLowIncome: Math.min(100, data.inclusionLowIncome * timeMult).toFixed(0),
+challengeAlign: Math.min(100, data.challengeAlign * timeMult).toFixed(0)
+    };
+// 3. Update KPIs
+document.getElementById('kpi-training').innerText = finalData.train + '%';
+document.getElementById('kpi-skills').innerText = finalData.skill + '/100';
+document.getElementById('kpi-connect').innerText = finalData.conn + '%';
+document.getElementById('kpi-adoption').innerText = finalData.adopt + '%';
+document.getElementById('kpi-prod').innerText = finalData.prod + '%';
+document.getElementById('kpi-invest').innerText = '$' + finalData.invest + 'B';
+document.getElementById('kpi-risk').innerText = finalData.risk;
+// 4. Update Charts (Randomize slightly to show interaction, include projections)
+radarChart.data.datasets[0].data = Array.from({length: 7}, () => Math.random() * 50 + 50 * timeMult);
+radarChart.update();
+barChart.data.datasets[0].data = barChart.data.labels.map(() => (Math.random() * 40 + 40) * timeMult);
+barChart.update();
+lineChart.data.datasets[0].data = lineChart.data.datasets[0].data.map(v => v * timeMult);
+lineChart.update();
+// Update Histogram with country-specific adoption (simulated lines as bars)
+const countries = ['Global', 'United States', 'China', 'India', 'Brazil', 'Nigeria', 'Japan']; // Can expand dynamically
+histogramChart.data.labels = countries;
+histogramChart.data.datasets[0].data = countries.map(c => getCountryData(c).adopt * timeMult);
+histogramChart.update();
+// 5. Update Heatmap Grid
+const hmContainer = document.getElementById('accessHeatmap');
+hmContainer.innerHTML = '';
+for(let i=0; i<16; i++) {
+const d = document.createElement('div');
+d.className = 'hm-cell';
+const val = Math.floor(Math.random() * 100 * timeMult);
+d.style.backgroundColor = val > 70 ? '#72BF44' : val > 40 ? '#FFC800' : '#ED1847';
+d.style.opacity = val/100;
+d.innerText = val;
+hmContainer.appendChild(d);
+    }
+// 6. Update Projections
+updateProjections();
+// 7. Update Insights Text
+const insights = document.getElementById('aiInsights');
+insights.innerHTML = `<strong>AI INSIGHT:</strong> Analysis for <strong>${country}</strong> in <strong>${industry}</strong> sector (Dev Level: ${dev}, Time: ${time}) shows a readiness score of <strong>${finalData.skill}</strong>. Recommendation: Prioritize infrastructure in rural nodes to boost connectivity from ${finalData.conn}%. Data from custom datasets.`;
+// 8. Highlight selected country on map
+if (country !== 'Global') {
+  highlightCountry(country);
+} else if (geoLayer) {
+  geoLayer.eachLayer(layer => layer.setStyle(styleMapFeature(layer.feature)));
+}
+// 9. Update Insights Charts (simulated with filters)
+demandSupplyChart.data.datasets[0].data = countries.map(c => getCountryData(c).demand * timeMult);
+demandSupplyChart.data.datasets[1].data = countries.map(c => getCountryData(c).supply * timeMult);
+demandSupplyChart.update();
+skillGapsChart.data.datasets[0].data = countries.map(c => getCountryData(c).mismatch * timeMult);
+skillGapsChart.update();
+inclusionGapsChart.data.datasets[0].data = [finalData.inclusionYouth, finalData.inclusionFemale, finalData.inclusionLowIncome];
+inclusionGapsChart.update();
+challengesChart.data.datasets[0].data = [finalData.challengeAlign, Math.random()*50 + 30, Math.random()*50 + 40]; // Simulate
+challengesChart.update();
+  }
+// --- PROJECTIONS SLIDER ---
+function updateProjections() {
+const val = document.getElementById('scenarioSlider').value;
+const label = document.getElementById('scenarioLabel');
+let jobs, gdp, sme, risk;
+if(val == "1") {
+label.innerText = "Conservative Scenario (Low Inv)";
+jobs = "2.5M"; gdp = "+0.8%"; sme = "Low"; risk = "Med";
+    } else if (val == "2") {
+label.innerText = "Baseline Scenario (Med Inv)";
+jobs = "8.2M"; gdp = "+1.5%"; sme = "Med"; risk = "Low";
+    } else {
+label.innerText = "Aggressive Scenario (High Inv)";
+jobs = "15M+"; gdp = "+3.2%"; sme = "High"; risk = "High";
+    }
+document.getElementById('out-jobs').innerText = jobs;
+document.getElementById('out-gdp').innerText = gdp;
+document.getElementById('out-sme').innerText = sme;
+document.getElementById('out-risk').innerText = risk;
+  }
+// === 6. CHATBOT LOGIC ===
+function toggleAiBody() {
+  const body = document.getElementById('chatBody');
+  body.classList.toggle('open');
+}
+function sendChat() {
+const input = document.getElementById('chatInput');
+const txt = input.value.trim();
+if(!txt) return;
+addChatMsg("User", txt);
+input.value = "";
+setTimeout(() => {
+processCommand(txt);
+    }, 600);
+  }
+function addChatMsg(role, text) {
+const body = document.getElementById('chatBody');
+const d = document.createElement('div');
+d.className = `ai-msg ${role === 'User' ? 'user' : 'bot'}`;
+d.innerText = text;
+body.appendChild(d);
+body.scrollTop = body.scrollHeight;
+  }
+function processCommand(txt) {
+const lower = txt.toLowerCase();
+// Expanded Keyword Matching for basic prompts (simulation)
+let response = "I updated the dashboard based on your input. Suggesting: Clean filters?";
+if(lower.includes("china")) {
+document.getElementById('sel-country').value = "China";
+response = "Switching view to China. Suggesting: Clean data for Healthcare in China?";
+    } else if(lower.includes("usa") || lower.includes("united states")) {
+document.getElementById('sel-country').value = "United States";
+response = "Focusing on United States. Suggesting: Analyze projections for 2030?";
+    } else if(lower.includes("health") || lower.includes("healthcare")) {
+document.getElementById('sel-industry').value = "Health";
+response = "Filtering for Healthcare sector. Suggesting: Compare with Finance?";
+    } else if(lower.includes("finance")) {
+document.getElementById('sel-industry').value = "Finance";
+response = "Analyzing Financial sector data. Suggesting: View female participation?";
+    } else if(lower.includes("high investment") || lower.includes("aggressive")) {
+document.getElementById('scenarioSlider').value = 3;
+response = "Simulating Aggressive Investment Scenario. Suggesting: Check risk changes.";
+    } else if(lower.includes("india")) {
+document.getElementById('sel-country').value = "India";
+response = "Switching to India. Suggesting: Focus on rural areas?";
+    } else if(lower.includes("developed")) {
+document.getElementById('sel-dev').value = "Developed";
+response = "Filtering for Developed countries. Suggesting: Compare with Developing?";
+    } else if(lower.includes("clean")) {
+ // Reset filters as "clean" suggestion
+document.getElementById('sel-country').value = "Global";
+document.getElementById('sel-industry').value = "All";
+document.getElementById('sel-dev').value = "All";
+response = "Cleaning filters to default.";
+    } // Add more for other countries/industries as needed
+addChatMsg("Bot", response);
+updateDashboard();
+  }
+</script>
+</body>
+</html>
