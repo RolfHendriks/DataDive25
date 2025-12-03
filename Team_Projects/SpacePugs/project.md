@@ -18,14 +18,5 @@ This challenge examines the relationship between legal gender gaps and women's e
 - Gordon Blackadder
 
 
-
-## Challenge Category Area
-
-
-## Project Description
-
-
-
-
 ## Links:
-
+[Google Slides](https://docs.google.com/presentation/d/1sqnGoJcfFMHqBvJMFbJr2RsJheUPkkss76U01a6lAYU/edit?usp=sharing)
