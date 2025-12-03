@@ -1,0 +1,1 @@
+Folder used to share charts as candidates for the presentation

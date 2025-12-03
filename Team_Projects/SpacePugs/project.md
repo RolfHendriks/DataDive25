@@ -1,0 +1,22 @@
+# SpacePugs
+
+This is team SpacePug's that addresses Challenge 5: How do laws shape women's jobs and entrepreneurship?
+
+## Overview
+This challenge examines the relationship between legal gender gaps and women's economic outcomes. We investigate how workplace protections, pay equity laws, entrepreneurship regulations, and parenthood policies affect women's labor-force participation, earnings, sectoral mobility, and business performance across 190 economies.
+
+## Team Members
+
+- Alyssa Wang
+- Upasana Pattnaik
+- Kushal Mohnot
+- Lilian Mkandla
+- Justin Mezetin
+- Alanna Hazlett
+- Rukhshona Fatoeva
+- Max Calzada
+- Gordon Blackadder
+
+
+## Links:
+[Google Slides](https://docs.google.com/presentation/d/1sqnGoJcfFMHqBvJMFbJr2RsJheUPkkss76U01a6lAYU/edit?usp=sharing)

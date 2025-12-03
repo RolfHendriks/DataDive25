@@ -1,0 +1,52 @@
+---
+title: "Exploring Global Governance"
+subtitle: "An Interactive Data Visualization"
+author: "Shri Khalpada & Rob Moore"
+format:
+  revealjs:
+    theme: simple
+---
+
+## Who We Are
+
+**PerThirtySix** - Data visualization and full-stack engineering
+
+- **Shri Khalpada**: Principal Software Engineer and Creative Coder | Microsoft, Cleaning the Glass
+- **Rob Moore**: CTO, Data Vis Enthusiast | Oxford, Churnkey.co
+
+Building thoughtful, data-driven explorations.
+
+## The Data
+
+**World Bank Worldwide Governance Indicators + Business Ready Project**
+
+- 6 governance dimensions (Government Effectiveness, Rule of Law, etc.)
+- 3 regulatory performance pillars (Framework, Services, Efficiency)
+- 200+ countries
+- Multiple outcome indicators (GDP, life expectancy, literacy, etc.)
+
+## What We Built
+
+An interactive explorer combining:
+
+1. **Data table** with inline visualizations
+2. **D3.js visualizations** - Regulatory Framework vs Public Services
+3. **Custom explorer** - any metric vs any metric, colored by region or income
+
+All client-side, real-time, responsive.
+
+## Let's Explore
+
+*[Demo the live site]*
+
+**Key features:**
+- Filter and sort countries by regulatory performance
+- Visualize relationships between governance and outcomes
+- Compare regions and income groups
+- Identify patterns and outliers
+
+## Questions?
+
+View the tool: [perthirtysix.com](https://perthirtysix.com)
+
+Contact us via LinkedIn or our personal sites.
