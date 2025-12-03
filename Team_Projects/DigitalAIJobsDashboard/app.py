@@ -30,6 +30,9 @@ except ImportError:
     MCP_AVAILABLE = False
     data_fetcher = None
 
+# Import AI users data loader (local module)
+from load_ai_users_data import load_ai_users_data
+
 # Configuration
 DATA_DIR = Path(__file__).parent / "data"
 DB_PATH = DATA_DIR / "digital_jobs.duckdb"
@@ -677,6 +680,149 @@ def create_choropleth_map(df, value_col, title, color_scale="Viridis", reverse=F
     return fig
 
 
+def create_ai_users_choropleth(df, metric_col, title):
+    """Create an enhanced choropleth map for AI Users data."""
+    # Create custom hover template
+    if metric_col == 'total_ai_users':
+        hover_template = (
+            '<b>%{text}</b><br>' +
+            'Claude users: %{customdata[0]:,.0f}<br>' +
+            'ChatGPT users (est.): %{customdata[1]:,.0f}<br>' +
+            'Total AI users: %{z:,.0f}<br>' +
+            '<extra></extra>'
+        )
+        customdata = df[['claude_users', 'chatgpt_users']].values
+    elif metric_col == 'ai_users_per_capita':
+        hover_template = (
+            '<b>%{text}</b><br>' +
+            'AI users per capita: %{z:.4f}<br>' +
+            'Claude users: %{customdata[0]:,.0f}<br>' +
+            'ChatGPT users (est.): %{customdata[1]:,.0f}<br>' +
+            'Total AI users: %{customdata[2]:,.0f}<br>' +
+            '<extra></extra>'
+        )
+        customdata = df[['claude_users', 'chatgpt_users', 'total_ai_users']].values
+    elif metric_col == 'ai_users_per_internet':
+        hover_template = (
+            '<b>%{text}</b><br>' +
+            'AI users per internet user: %{z:.4f}<br>' +
+            'Claude users: %{customdata[0]:,.0f}<br>' +
+            'ChatGPT users (est.): %{customdata[1]:,.0f}<br>' +
+            'Total AI users: %{customdata[2]:,.0f}<br>' +
+            '<extra></extra>'
+        )
+        customdata = df[['claude_users', 'chatgpt_users', 'total_ai_users']].values
+    elif metric_col == 'claude_users':
+        hover_template = (
+            '<b>%{text}</b><br>' +
+            'Claude users: %{z:,.0f}<br>' +
+            '<extra></extra>'
+        )
+        customdata = None
+    elif metric_col == 'chatgpt_users':
+        hover_template = (
+            '<b>%{text}</b><br>' +
+            'ChatGPT users (est.): %{z:,.0f}<br>' +
+            '<extra></extra>'
+        )
+        customdata = None
+    else:
+        hover_template = '<b>%{text}</b><br>%{z:,.2f}<br><extra></extra>'
+        customdata = None
+
+    # Calculate min/max for better color distribution
+    min_val = df[metric_col].min()
+    max_val = df[metric_col].max()
+
+    # Blue-green color scale similar to existing maps
+    colorscale = [
+        [0, '#e8f4f8'],      # Very light blue
+        [0.2, '#c6e5e8'],    # Light blue
+        [0.4, '#9dd3d8'],    # Medium blue
+        [0.6, '#6bb6c1'],    # Blue-green
+        [0.8, '#3a9ab0'],    # Dark blue-green
+        [1, '#1a7a8f']       # Dark blue
+    ]
+
+    # Create enhanced map
+    fig = go.Figure()
+
+    # Add choropleth trace with enhanced styling
+    trace_params = {
+        'locations': df['iso3'],
+        'z': df[metric_col],
+        'text': df['country_name'],
+        'colorscale': colorscale,
+        'showscale': True,
+        'colorbar': dict(
+            title=dict(
+                text=metric_col.replace('_', ' ').title(),
+                font=dict(size=12, color='#333333')
+            ),
+            thickness=20,
+            len=0.6,
+            x=1.02,
+            xanchor='left',
+            yanchor='middle',
+            tickfont=dict(size=10, color='#666666'),
+            bgcolor='rgba(255,255,255,0.8)',
+            bordercolor='#e0e0e0',
+            borderwidth=1
+        ),
+        'hovertemplate': hover_template,
+        'marker': dict(
+            line=dict(
+                width=0.5,
+                color='rgba(255,255,255,0.8)'
+            )
+        ),
+        'zmin': min_val,
+        'zmax': max_val
+    }
+
+    if customdata is not None:
+        trace_params['customdata'] = customdata
+
+    fig.add_trace(go.Choropleth(**trace_params))
+
+    # Enhanced layout styling
+    fig.update_layout(
+        title=dict(
+            text=title,
+            font=dict(size=18, color='#1a1a1a', family='Arial, sans-serif'),
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top'
+        ),
+        height=600,
+        geo=dict(
+            showframe=False,
+            showcoastlines=True,
+            coastlinecolor='rgba(200,200,200,0.3)',
+            showland=True,
+            landcolor='rgba(250,250,250,1)',
+            showocean=True,
+            oceancolor='rgba(240,248,255,1)',
+            showlakes=True,
+            lakecolor='rgba(240,248,255,1)',
+            projection_type='natural earth',
+            projection=dict(
+                scale=1.1
+            ),
+            bgcolor='rgba(255,255,255,0)',
+            lonaxis=dict(showgrid=False),
+            lataxis=dict(showgrid=False)
+        ),
+        margin=dict(l=0, r=0, t=80, b=0),
+        paper_bgcolor='white',
+        plot_bgcolor='white',
+        font=dict(family='Arial, sans-serif', color='#333333')
+    )
+
+    return fig
+
+
 def create_country_map_data(selected_countries=None, year_range=None, metric='avg_gap'):
     """Get country-level data for mapping."""
     conn = duckdb.connect(str(DB_PATH), read_only=True)
@@ -786,7 +932,7 @@ def main():
     st.sidebar.markdown("---")
     
     # Analysis view selector
-    view_options = ["Country Trends", "Industry Trends", "Skill Trends", "Rising vs Lagging"]
+    view_options = ["Country Trends", "Industry Trends", "Skill Trends", "Rising vs Lagging", "AI Users Map"]
     if MCP_AVAILABLE:
         view_options.append("MCP Server")
 
@@ -1200,6 +1346,165 @@ def main():
                     'recent_supply': 'Recent Supply'
                 })
                 st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+    elif view == "AI Users Map":
+        st.header("🌐 AI Users by Country")
+        st.markdown("""
+        Interactive map showing AI platform usage (Claude and ChatGPT) across countries.
+        ChatGPT users are estimated based on GDP per capita and internet usage data.
+        """)
+
+        # AI Users view controls in sidebar
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("AI Users Controls")
+
+        # Time Period toggle
+        time_period = st.sidebar.radio(
+            "Time Period",
+            ["May 2025", "May 2024"],
+            help="Time period affects ChatGPT user estimates"
+        )
+
+        # Metric dropdown
+        metric_type = st.sidebar.selectbox(
+            "Metric",
+            ["Absolute users", "Per capita", "Per internet user"],
+            help="Choose how to measure AI adoption"
+        )
+
+        # Platform radio
+        platform = st.sidebar.radio(
+            "Platform",
+            ["Combined", "Claude only", "ChatGPT only"],
+            help="Filter by AI platform"
+        )
+
+        # Load AI users data
+        try:
+            with st.spinner(f"Loading AI users data for {time_period}..."):
+                ai_users_df = load_ai_users_data(time_period=time_period)
+
+            if ai_users_df.empty:
+                st.warning("No AI users data available.")
+            else:
+                # Filter by platform
+                df_filtered = ai_users_df.copy()
+
+                # Determine which column to display based on platform and metric
+                if platform == "Combined":
+                    if metric_type == "Absolute users":
+                        metric_col = 'total_ai_users'
+                        title = f'Total AI Users by Country ({time_period})'
+                    elif metric_type == "Per capita":
+                        metric_col = 'ai_users_per_capita'
+                        title = f'AI Users Per Capita by Country ({time_period})'
+                    else:  # Per internet user
+                        metric_col = 'ai_users_per_internet'
+                        title = f'AI Users Per Internet User by Country ({time_period})'
+                elif platform == "Claude only":
+                    metric_col = 'claude_users'
+                    if metric_type == "Per capita":
+                        # Avoid division by zero
+                        df_filtered['claude_per_capita'] = df_filtered['claude_users'] / df_filtered['pop_adult'].replace(0, float('nan'))
+                        metric_col = 'claude_per_capita'
+                        title = f'Claude Users Per Capita by Country ({time_period})'
+                    elif metric_type == "Per internet user":
+                        df_filtered['claude_per_internet'] = df_filtered['claude_users'] / df_filtered['internet_users'].replace(0, float('nan'))
+                        metric_col = 'claude_per_internet'
+                        title = f'Claude Users Per Internet User by Country ({time_period})'
+                    else:
+                        title = f'Claude Users by Country ({time_period})'
+                else:  # ChatGPT only
+                    metric_col = 'chatgpt_users'
+                    if metric_type == "Per capita":
+                        df_filtered['chatgpt_per_capita'] = df_filtered['chatgpt_users'] / df_filtered['pop_adult'].replace(0, float('nan'))
+                        metric_col = 'chatgpt_per_capita'
+                        title = f'ChatGPT Users (est.) Per Capita by Country ({time_period})'
+                    elif metric_type == "Per internet user":
+                        df_filtered['chatgpt_per_internet'] = df_filtered['chatgpt_users'] / df_filtered['internet_users'].replace(0, float('nan'))
+                        metric_col = 'chatgpt_per_internet'
+                        title = f'ChatGPT Users (est.) Per Internet User by Country ({time_period})'
+                    else:
+                        title = f'ChatGPT Users (est.) by Country ({time_period})'
+
+                # Remove rows with missing metric values
+                df_filtered = df_filtered[df_filtered[metric_col].notna()]
+                df_filtered = df_filtered[df_filtered[metric_col] > 0]
+
+                if df_filtered.empty:
+                    st.warning(f"No data available for the selected metric and platform combination.")
+                else:
+                    # Create and display the choropleth map
+                    fig = create_ai_users_choropleth(df_filtered, metric_col, title)
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    # Summary statistics
+                    st.subheader("📊 Summary Statistics")
+
+                    total_claude = df_filtered['claude_users'].sum()
+                    total_chatgpt = df_filtered['chatgpt_users'].sum()
+
+                    if platform == "Combined":
+                        col1, col2, col3, col4 = st.columns(4)
+                        with col1:
+                            st.metric(label="Countries", value=f"{len(df_filtered):,}")
+                        with col2:
+                            st.metric(label="Claude Users", value=f"{total_claude:,.0f}")
+                        with col3:
+                            st.metric(label="ChatGPT (est.)", value=f"{total_chatgpt:,.0f}")
+                        with col4:
+                            st.metric(label="Total AI Users", value=f"{total_claude + total_chatgpt:,.0f}")
+                    elif platform == "Claude only":
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric(label="Countries", value=f"{len(df_filtered):,}")
+                        with col2:
+                            st.metric(label="Total Claude Users", value=f"{total_claude:,.0f}")
+                    else:  # ChatGPT only
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric(label="Countries", value=f"{len(df_filtered):,}")
+                        with col2:
+                            st.metric(label="Total ChatGPT (est.)", value=f"{total_chatgpt:,.0f}")
+
+                    # Top 20 countries table
+                    with st.expander("📋 View Top 20 Countries"):
+                        # Sort by the selected metric
+                        top_20 = df_filtered.nlargest(20, metric_col)
+
+                        # Prepare display columns
+                        display_cols = ['country_name', 'claude_users', 'chatgpt_users', 'total_ai_users']
+                        col_names = {
+                            'country_name': 'Country',
+                            'claude_users': 'Claude Users',
+                            'chatgpt_users': 'ChatGPT Users (est.)',
+                            'total_ai_users': 'Total AI Users'
+                        }
+
+                        # Add per-capita/per-internet columns if applicable
+                        if metric_type == "Per capita":
+                            display_cols.extend(['ai_users_per_capita'])
+                            col_names['ai_users_per_capita'] = 'Per Capita'
+                        elif metric_type == "Per internet user":
+                            display_cols.extend(['ai_users_per_internet'])
+                            col_names['ai_users_per_internet'] = 'Per Internet User'
+
+                        # Filter to available columns
+                        available_cols = [col for col in display_cols if col in top_20.columns]
+                        display_df = top_20[available_cols].rename(columns=col_names)
+
+                        st.dataframe(
+                            display_df,
+                            use_container_width=True,
+                            hide_index=True
+                        )
+
+        except FileNotFoundError as e:
+            st.error(f"⚠️ Data file not found: {e}")
+            st.info("Please ensure the AI users data files are available in the AI_Readiness_Measures/data directory.")
+        except Exception as e:
+            st.error(f"⚠️ Error loading AI users data: {e}")
+            st.exception(e)
 
     elif view == "MCP Server":
         st.header("🔌 MCP Server - Data Source Integration")
