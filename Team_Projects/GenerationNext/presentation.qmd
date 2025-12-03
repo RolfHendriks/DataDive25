@@ -1,0 +1,126 @@
+---
+title: "DEMO PRESENTATION"
+subtitle: "DEMO PRESENTATION"
+author: "Sample Team "
+date: "2025"
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+    preview-links: auto
+    footer: "DataDive 2025 - World Bank"
+---
+
+## Overview
+
+PRESENTATION DEMO
+
+This presentation explores the relationship between **education levels** and **economic growth indicators** using World Bank data.
+
+. . .
+
+Key findings:
+
+- Higher education correlates with stronger economies
+- Technology and manufacturing sectors show strongest effects
+- Regional variations exist in education-growth relationships
+
+## Data Sources
+
+We analyzed data from multiple World Bank datasets:
+
+- **World Development Indicators (WDI)**
+- **Education Statistics (EdStats)**
+- **Jobs Indicators Database**
+
+::: {.notes}
+These datasets span from 1990-2023 and cover over 200 countries.
+:::
+
+## Methodology
+
+::: {.incremental}
+1. Data collection and cleaning
+2. Feature engineering for education metrics
+3. Economic indicator analysis
+4. Correlation and regression modeling
+5. Regional segmentation analysis
+:::
+
+## Key Findings {.smaller}
+
+| Region | Education Score | GDP Growth | Correlation |
+|--------|----------------|------------|-------------|
+| East Asia | 85.2 | 6.8% | 0.82 |
+| Europe | 88.5 | 2.1% | 0.75 |
+| N. America | 87.3 | 2.4% | 0.71 |
+| Sub-Saharan Africa | 62.1 | 4.2% | 0.68 |
+
+## Technology Sector Impact
+
+Countries with higher tertiary education rates show:
+
+- 📈 **3.2x** more tech sector jobs
+- 💰 **45%** higher average wages in tech
+- 🏢 **2.1x** more tech startups per capita
+
+## Manufacturing Sector
+
+Education's role in manufacturing transformation:
+
+![Manufacturing Evolution](https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600)
+
+::: {.fragment}
+*Higher skilled workforce enables advanced manufacturing adoption*
+:::
+
+## Regional Analysis
+
+```{python}
+#| echo: false
+#| eval: false
+import altair as alt
+import pandas as pd
+
+# Sample data for visualization
+data = pd.DataFrame({
+    'Region': ['East Asia', 'Europe', 'N. America', 'S. America', 'Africa'],
+    'Education Index': [85, 88, 87, 72, 62],
+    'GDP Growth': [6.8, 2.1, 2.4, 1.8, 4.2]
+})
+
+chart = alt.Chart(data).mark_circle(size=100).encode(
+    x='Education Index',
+    y='GDP Growth',
+    color='Region',
+    tooltip=['Region', 'Education Index', 'GDP Growth']
+).properties(width=500, height=300)
+
+chart
+```
+
+*Visualization: Regional education vs. economic growth*
+
+## Recommendations
+
+::: {.callout-tip}
+## Policy Implications
+1. Increase tertiary education access
+2. Align curricula with industry needs
+3. Invest in vocational training programs
+:::
+
+## Next Steps
+
+- Expand analysis to include more recent data
+- Develop predictive models for policy planning
+- Create interactive dashboard for stakeholders
+
+## Questions?
+
+**Contact:**
+
+- Team Testers
+- DataDive 2025
+
+Thank you for your attention! 🎓📊

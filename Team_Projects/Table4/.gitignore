@@ -1,8 +1,0 @@
-# Data files (too large for GitHub)
-data/*.csv
-data/*.zip
-data/*.xls
-data/*.xlsx
-
-# Keep the directory structure
-!data/.gitkeep
