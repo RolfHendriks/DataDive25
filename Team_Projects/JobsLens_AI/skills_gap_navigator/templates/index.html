@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Digital Skills Gap Navigator</title>
+
+    <!-- D3.js for visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Plotly for interactive charts -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <!-- TopoJSON for map data -->
+    <script src="https://unpkg.com/topojson@3"></script>
+
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="main-title">
+                <span class="gradient-text">Global Digital Skills Gap Navigator</span>
+            </h1>
+            <p class="subtitle">AI-Powered Explainable Predictions (2027) | AUC: 86%</p>
+            <p class="tagline">See exactly which policy levers matter most for each country</p>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+
+            <!-- Left Panel: Interactive Map -->
+            <div class="panel map-panel">
+                <div class="panel-header">
+                    <h2>Risk Distribution Map</h2>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00d4ff;"></span>
+                            <span>Ready</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #00ff88;"></span>
+                            <span>Emerging Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ffaa00;"></span>
+                            <span>High Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ff0055;"></span>
+                            <span>Critical Risk</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="world-map" class="visualization"></div>
+                <div id="selected-country" class="selected-info"></div>
+            </div>
+
+            <!-- Right Top: Feature Importance -->
+            <div class="panel importance-panel">
+                <div class="panel-header">
+                    <h2>Global Feature Importance</h2>
+                    <p class="panel-subtitle">Which factors drive predictions worldwide</p>
+                </div>
+                <div id="feature-importance" class="visualization"></div>
+            </div>
+
+            <!-- Right Bottom: Waterfall Plot -->
+            <div class="panel waterfall-panel">
+                <div class="panel-header">
+                    <h2 id="waterfall-title">Country Breakdown</h2>
+                    <p class="panel-subtitle">How features contribute to the prediction</p>
+                </div>
+                <div id="waterfall-plot" class="visualization"></div>
+            </div>
+
+            <!-- Bottom: Shape Functions -->
+            <div class="panel shape-panel">
+                <div class="panel-header">
+                    <h2>Feature Relationships</h2>
+                    <p class="panel-subtitle">Non-linear effects of key variables</p>
+                </div>
+                <div id="shape-selector">
+                    <label>Select Feature:</label>
+                    <select id="shape-feature-select">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div id="shape-functions" class="visualization"></div>
+            </div>
+
+        </div>
+
+        <!-- Interactive Controls Sidebar -->
+        <div class="controls-panel">
+            <h3>Interactive Controls</h3>
+
+            <div class="control-group">
+                <label>Filter by Risk Level:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" class="risk-filter" value="0" checked> Ready</label>
+                    <label><input type="checkbox" class="risk-filter" value="1" checked> Emerging</label>
+                    <label><input type="checkbox" class="risk-filter" value="2" checked> High</label>
+                    <label><input type="checkbox" class="risk-filter" value="3" checked> Critical</label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Filter by Region:</label>
+                <select id="region-filter" class="select-control">
+                    <option value="all">All Regions</option>
+                </select>
+            </div>
+
+            <div class="control-group feature-sliders">
+                <h4>Adjust Feature Values</h4>
+                <p class="slider-info">See how changing variables affects predictions</p>
+                <div id="slider-container"></div>
+            </div>
+
+            <div class="control-group">
+                <button id="reset-filters" class="btn-primary">Reset All Filters</button>
+            </div>
+
+            <div class="stats-panel">
+                <h4>Dataset Summary</h4>
+                <div class="stat-item">
+                    <span class="stat-label">Total Countries:</span>
+                    <span class="stat-value" id="total-countries">66</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Critical Risk:</span>
+                    <span class="stat-value" id="critical-count">43</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Model Accuracy:</span>
+                    <span class="stat-value">86%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Data Sources: Stanford HAI (2017-2024) | World Bank I2D2 | Model: Explainable Boosting Machine</p>
+            <p>Powered by InterpretML | Built for DataDive 2025</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading model artifacts...</p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../static/js/map.js"></script>
+    <script src="../static/js/importance.js"></script>
+    <script src="../static/js/waterfall.js"></script>
+    <script src="../static/js/shapes.js"></script>
+    <script src="../static/js/main.js"></script>
+</body>
+</html>

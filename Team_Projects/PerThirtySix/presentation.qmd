@@ -1,0 +1,60 @@
+---
+title: "Does Regulatory Quality Drive Prosperity?"
+subtitle: "An Interactive Data Visualization"
+author: "Shri Khalpada & Rob Moore"
+format:
+  revealjs:
+    theme: simple
+    transition: fade
+    background-transition: fade
+    center: true
+    width: 1600
+    height: 900
+    margin: 0.1
+---
+
+## Who We Are
+
+**PerThirtySix** - Data visualization and full-stack engineering
+
+- **Shri Khalpada**: Principal Software Engineer and Creative Coder | Microsoft, Cleaning the Glass
+- **Rob Moore**: CTO, Data Vis Enthusiast | Oxford, Churnkey.co
+
+Building thoughtful, data-driven explorations.
+
+## The Data
+
+**World Bank Worldwide Governance Indicators + Business Ready Project**
+
+::: {.columns}
+::: {.column width="50%"}
+- 6 governance dimensions (Government Effectiveness, Rule of Law, etc.)
+- 3 regulatory performance pillars (Framework, Services, Efficiency)
+- 200+ countries analyzed
+- Multiple outcome indicators (GDP, life expectancy, literacy, etc.)
+:::
+
+::: {.column width="50%"}
+![](chart.png){width=100%}
+:::
+:::
+
+## What We Built {.center}
+
+::: {style="text-align: center; margin-top: 2em;"}
+An interactive explorer combining data tables, D3.js visualizations, and custom metric comparisons.
+
+All client-side, real-time, responsive.
+
+### [Let's explore the tool →](https://perthirtysix.com/tool/regulatory-jobs-data-explorer)
+:::
+
+## Questions? {.center}
+
+::: {style="text-align: center; margin-top: 2em;"}
+![Economic Inequality Distribution](chart.png){width=70%}
+
+### [perthirtysix.com/tool/regulatory-jobs-data-explorer](https://perthirtysix.com/tool/regulatory-jobs-data-explorer)
+
+Contact us via LinkedIn or our personal sites.
+:::
