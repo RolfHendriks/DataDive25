@@ -29,7 +29,7 @@ To help understand these changes, group 8 built an interactive dashboard that id
 - Lincoln Chanakira
 - Edward Ghafari
 
-# Jobs and Youth: Challenge 8
+## Jobs and Youth: Challenge 8
 
 See https://www.dc2.org/datadive for details on the challenge areas.
 
