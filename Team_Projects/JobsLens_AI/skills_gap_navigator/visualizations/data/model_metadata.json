@@ -1,0 +1,42 @@
+{
+  "model_type": "ExplainableBoostingClassifier",
+  "n_features": 28,
+  "feature_names": [
+    "ai_skills_penetration",
+    "ai_hiring_rate",
+    "ai_talent_concentration",
+    "ai_job_postings_pct",
+    "ai_talent_migration",
+    "ai_gender_equality",
+    "ai_publications",
+    "ai_citations",
+    "ai_patents",
+    "ml_models",
+    "github_repos",
+    "private_investment",
+    "newly_funded_companies",
+    "internet_speed",
+    "supercomputers",
+    "ai_bills_passed",
+    "ai_policy_momentum",
+    "has_ai_strategy",
+    "population",
+    "ai_job_postings_pct_growth",
+    "ai_job_postings_pct_acceleration",
+    "ai_skills_penetration_growth",
+    "ai_skills_penetration_acceleration",
+    "ai_hiring_rate_growth",
+    "ai_hiring_rate_acceleration",
+    "ai_job_postings_pct_trend_3y",
+    "ai_publications_trend_3y",
+    "private_investment_trend_3y"
+  ],
+  "n_train_samples": 52,
+  "n_test_samples": 14,
+  "risk_categories": [
+    "Ready",
+    "Emerging",
+    "High",
+    "Critical"
+  ]
+}

@@ -42,15 +42,9 @@ Our solution provides:
 ## Methodology
 
 ### Data Integration
-- Consolidation of data from World Bank Global Labor Database, ILO, ITU ICT Data Hub, and Digital Progress indicators
+- Consolidation of data from World Bank Global Labor Database (JOIN), and Stanford's HAI (https://hai.stanford.edu/assets/files/hai_ai_index_report_2025.pdf)
 - Harmonization of country codes, industry classifications, and time periods
 - Creation of unified demand and supply metrics
-
-### Analysis Approach
-- Statistical analysis of employment trends in ICT sectors
-- Development of composite indices for digital job demand and supply
-- Identification of geographical and sectoral imbalances
-- Validation of findings against known labor market trends
 
 ### Technical Implementation
 - Python-based data processing and analysis
@@ -66,13 +60,8 @@ Our solution provides:
 
 ## Data Sources
 
-- Indicators for Digital Progress and Trends Report 2025: Strengthening AI Foundations
-- Data360 (Labor Force Surveys): Employment in ICT manufacturing and services
 - World Bank Global Labor Database
-- WBG Global Jobs Indicators Database
-- International Labor Organization (ILO)
-- ITU ICT Data Hub
-- Global Findex Digital Connectivity Tracker
+- HAI Database
 
 ## Project Structure
 
@@ -89,13 +78,7 @@ JobsLens_AI/
 
 ## Links
 
+- **Presentation**: [View on Canva](https://www.canva.com/design/DAG6ftQIfSA/pW-b5By0racKOTOgHcUY6A/view?utm_content=DAG6ftQIfSA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hcd000002d0)
 - Dashboard: [To be deployed]
 - GitHub Repository: [https://github.com/datacommunitydc/DataDive25](https://github.com/datacommunitydc/DataDive25)
 - Documentation: See `docs/` folder
-
-## Next Steps
-
-- [ ] Data collection and integration from all sources
-- [ ] Exploratory data analysis and insight generation
-- [ ] Dashboard development and deployment
-- [ ] Final presentation preparation

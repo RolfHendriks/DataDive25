@@ -28,6 +28,25 @@ The tool will allow users to see the trends in youth education levels and help i
  
 The application is designed to be user-friendly, with interactive visualizations that allow users to filter data by country, scenario, region and income grouping.
 It also includes an AI component that users can interact with in natural language to get even deeper in the data.
+
+![Image 1](dashboard_1.png)
+
+![Image 2](dashboard_2.png)
+
+![Image 3](dashboard_3.png)
+
+![Image 4](dashboard_4.png)
+
+![Image 5](dashboard_5.png)
+
+## Genie: AI chatbot to deep dive
+Our dashboard comes with an AI assistant that answers questions on the data.
+![Example 1](AI_question.png)
+
+
+
+
+
  
  
 ## Links:

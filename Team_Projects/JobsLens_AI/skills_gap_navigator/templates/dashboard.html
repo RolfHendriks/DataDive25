@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Digital Skills Gap Navigator - AI Impact Dashboard</title>
+
+    <!-- Plotly for interactive charts -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1em;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card .label {
+            color: #6b7280;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            color: #1f2937;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .stat-card .value.critical {
+            color: #dc2626;
+        }
+
+        .stat-card .value.high {
+            color: #f59e0b;
+        }
+
+        .stat-card .value.success {
+            color: #10b981;
+        }
+
+        .stat-card .subtext {
+            color: #9ca3af;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card h2 {
+            color: #1f2937;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .chart-card .chart-subtitle {
+            color: #6b7280;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+        }
+
+        .chart-container.large {
+            height: 500px;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .info-section h2 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .key-findings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .finding-card {
+            background: #f9fafb;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .finding-card.success {
+            border-left-color: #10b981;
+        }
+
+        .finding-card.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .finding-card.info {
+            border-left-color: #3b82f6;
+        }
+
+        .finding-card h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .finding-card p {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .finding-card .stat {
+            font-size: 2em;
+            font-weight: bold;
+            color: #dc2626;
+            margin: 10px 0;
+        }
+
+        .finding-card.success .stat {
+            color: #10b981;
+        }
+
+        .finding-card.warning .stat {
+            color: #f59e0b;
+        }
+
+        .finding-card.info .stat {
+            color: #3b82f6;
+        }
+
+        .controls {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .controls label {
+            display: block;
+            color: #4b5563;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .controls select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-top: 5px;
+        }
+
+        .badge.critical {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge.high {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge.emerging {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge.ready {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        footer {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: #6b7280;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        footer p {
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 Global Digital Skills Gap Navigator</h1>
+            <p class="subtitle">AI-Powered Explainable Predictions (2017-2024) | 66 Countries | Powered by EBM (86% AUC)</p>
+        </header>
+
+        <!-- Key Statistics -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="label">Countries Analyzed</div>
+                <div class="value success">66</div>
+                <div class="subtext">Global Coverage</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Critical Risk</div>
+                <div class="value critical" id="critical-count">43</div>
+                <div class="subtext">65% of countries</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">High Risk</div>
+                <div class="value high" id="high-count">21</div>
+                <div class="subtext">32% of countries</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Model Accuracy</div>
+                <div class="value success">86%</div>
+                <div class="subtext">AUC Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Top Predictor</div>
+                <div class="value" style="color: #667eea; font-size: 1.2em;">Internet Speed</div>
+                <div class="subtext">Infrastructure matters</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboards -->
+        <div class="dashboard-grid">
+            <!-- World Map -->
+            <div class="chart-card full-width">
+                <h2>🗺️ Global Risk Distribution</h2>
+                <p class="chart-subtitle">Countries colored by predicted skills gap risk level (2027)</p>
+                <div id="world-map" class="chart-container large"></div>
+            </div>
+
+            <!-- Feature Importance -->
+            <div class="chart-card">
+                <h2>📊 Top Predictive Factors</h2>
+                <p class="chart-subtitle">Global feature importance - what drives risk?</p>
+                <div id="feature-importance" class="chart-container"></div>
+            </div>
+
+            <!-- Risk Distribution -->
+            <div class="chart-card">
+                <h2>🎯 Risk Category Breakdown</h2>
+                <p class="chart-subtitle">How many countries in each risk level</p>
+                <div id="risk-distribution" class="chart-container"></div>
+            </div>
+
+            <!-- AI Publications Trends -->
+            <div class="chart-card">
+                <h2>📚 AI Publications Over Time</h2>
+                <p class="chart-subtitle">Research output by country (2017-2024)</p>
+                <div class="controls">
+                    <label>Select Country:</label>
+                    <select id="pub-country-select">
+                        <option value="all">All Countries (Top 10)</option>
+                    </select>
+                </div>
+                <div id="publications-chart" class="chart-container"></div>
+            </div>
+
+            <!-- Investment Trends -->
+            <div class="chart-card">
+                <h2>💰 AI Private Investment</h2>
+                <p class="chart-subtitle">Investment trends by country</p>
+                <div class="controls">
+                    <label>Select Country:</label>
+                    <select id="invest-country-select">
+                        <option value="all">All Countries (Top 10)</option>
+                    </select>
+                </div>
+                <div id="investment-chart" class="chart-container"></div>
+            </div>
+
+            <!-- Country Detail View -->
+            <div class="chart-card full-width">
+                <h2>🔍 Country Deep Dive</h2>
+                <p class="chart-subtitle">Detailed breakdown of risk factors for selected country</p>
+                <div class="controls">
+                    <label>Select Country:</label>
+                    <select id="country-detail-select">
+                        <option value="">Select a country...</option>
+                    </select>
+                </div>
+                <div id="country-detail" class="chart-container large">
+                    <div class="loading">
+                        <p style="color: #9ca3af;">Select a country to see detailed risk breakdown</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Insights -->
+        <div class="info-section">
+            <h2>🔍 Key Insights from the Data</h2>
+            <div class="key-findings">
+                <div class="finding-card critical">
+                    <h3>Global Crisis</h3>
+                    <div class="stat">97%</div>
+                    <p>of countries face <strong>High or Critical</strong> digital skills gap risk by 2027. Urgent policy action needed.</p>
+                </div>
+
+                <div class="finding-card info">
+                    <h3>Infrastructure is Key</h3>
+                    <div class="stat">#1</div>
+                    <p><strong>Internet speed</strong> is the top predictor of skills gap risk. Countries with slow internet face higher risk.</p>
+                </div>
+
+                <div class="finding-card warning">
+                    <h3>Investment Matters</h3>
+                    <div class="stat">3x</div>
+                    <p>Investment <strong>trends</strong> matter more than absolute amounts. Momentum and new companies are critical.</p>
+                </div>
+
+                <div class="finding-card info">
+                    <h3>Research Output</h3>
+                    <div class="stat">Top 5</div>
+                    <p>AI publications and citations are among the top 5 protective factors against skills gap risk.</p>
+                </div>
+
+                <div class="finding-card warning">
+                    <h3>Job Posting Acceleration</h3>
+                    <div class="stat">Rapid</div>
+                    <p>Countries with <strong>accelerating</strong> AI job postings show emerging gaps between supply and demand.</p>
+                </div>
+
+                <div class="finding-card success">
+                    <h3>Policy Impact</h3>
+                    <div class="stat">10%</div>
+                    <p>Countries with national AI strategies show <strong>lower risk</strong>. Policy frameworks make a difference.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Risk Countries -->
+        <div class="info-section">
+            <h2>⚠️ Top 10 Highest Risk Countries</h2>
+            <div id="top-risk-countries">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading country rankings...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Explanation -->
+        <div class="info-section">
+            <h2>🤖 How the Model Works</h2>
+            <p style="color: #4b5563; line-height: 1.8; margin-bottom: 20px;">
+                This dashboard uses an <strong>Explainable Boosting Machine (EBM)</strong>, a glass-box AI model that provides full transparency into its predictions. Unlike black-box neural networks, every prediction can be fully explained.
+            </p>
+
+            <div class="key-findings">
+                <div class="finding-card info">
+                    <h3>📊 28 Features</h3>
+                    <p>AI talent metrics, research output, investment trends, infrastructure indicators, policy measures, and velocity features.</p>
+                </div>
+
+                <div class="finding-card success">
+                    <h3>🎯 86% Accuracy</h3>
+                    <p>Model achieves 0.86 weighted AUC, exceeding the 0.85 target. Reliable predictions backed by rigorous evaluation.</p>
+                </div>
+
+                <div class="finding-card warning">
+                    <h3>⚡ Velocity Features</h3>
+                    <p>Captures momentum: year-over-year growth, acceleration, and 3-year trends to identify emerging risks.</p>
+                </div>
+
+                <div class="finding-card info">
+                    <h3>🔬 Data Sources</h3>
+                    <p>Stanford HAI AI Index (2017-2024) + World Bank I2D2 labor data + ITU/ILO infrastructure metrics.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Data Sources:</strong> Stanford HAI AI Index (2017-2024) | World Bank I2D2 | ITU/ILO</p>
+            <p><strong>Model:</strong> Explainable Boosting Machine (InterpretML) | 66 Countries | 28 Features</p>
+            <p><strong>Generated:</strong> December 2025 | DataDive 2025</p>
+        </footer>
+    </div>
+
+    <script src="../static/js/dashboard.js"></script>
+</body>
+</html>

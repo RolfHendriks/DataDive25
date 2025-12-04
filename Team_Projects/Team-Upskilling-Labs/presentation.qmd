@@ -1,0 +1,183 @@
+---
+title: "Youth Skills in 2035: Where Will Future Jobs Come From?"
+subtitle: "Challenge 6 • World Bank Data Dive 2025"
+author: "Team Upskilling Labs"
+date: "2025"
+format:
+  revealjs:
+    theme: default
+    slide-number: true
+    preview-links: auto
+    footer: "DataDive 2025 - World Bank"
+---
+
+## Team Upskilling Labs  
+
+:::: {.columns}
+::: {.column width="50%"}
+- Madhu Jalan  
+- Ashley Nalikka  
+- Sandra Moscoso  
+- Jennifer Kemp  
+- Chidubem Nwabunze  
+- Tiveeda Stovall  
+- Gareth Digby  
+:::
+::: {.column width="50%"}
+![Team Upskilling Labs](./images/IMG_6675.JPG)  
+:::
+::::
+
+---
+
+## The Problem
+
+* By 2035, global labor markets will be radically different.  
+* Youth supply (15–24) shifts dramatically across regions.  
+* Skills, not just population, will decide who benefits from digital/AI jobs.
+
+**Key Question:**
+
+*Which youth skills will matter most in 2035 — and where will they be located?*
+
+---
+
+## Our Data Approach
+
+:::: {.columns}
+::: {.column width="33%"}
+List datasets merged:
+
+* UN population projections  
+* UN education shares  
+* World Bank attainment levels  
+* Projections to 2035  
+* Scenario 2 (medium variant)
+:::
+::: {.column width="33%"}
+Outputs:
+
+* Absolute youth by skill  
+* Regional profiles  
+* Gender gaps  
+* Country leaders  
+* Risk outliers
+:::
+::: {.column width="33%"}
+Tools used:
+
+* ChatGPT
+* Claude
+* Databricks
+* Tableau
+:::
+::::
+
+---
+
+## The Global Pyramid of Skills (2035)
+
+![Global education pyramid](./images/slide_4.png)  
+Insight: Upper Secondary is the world’s dominant education level.
+
+---
+
+## Where Are Gender Gaps in Education Closing Fastest?  
+
+![Where Are Gender Gaps in Education Closing Fastest?](./images/slide5.png)  
+
+Gender parity in education is improving in most regions — but Sub-Saharan Africa and East Asia are falling behind, risking long-term inequality in future job markets.  
+
+---
+
+## Region Comparison: Post Secondary Educated Youth  
+
+![Region Comparison: Post Secondary Educated Youth](./images/slide6.png)  
+
+By 2035, East Asia & Pacific will have the world’s largest pool of post-secondary educated youth, while women will lead in North America, Latin America, Europe & Central Asia — and men remain ahead in South Asia, MENA, and Sub-Saharan Africa.  
+
+---
+
+## Master's or Higher Students in 2035  
+
+![Top 5 and Bottom 5 countries, largest number of Master's or Higher Students](./images/top5_bottom5_2035_vertical.png)
+
+---
+
+## Live Dashboards in Tableau  
+
+![Tableau live dashboard](./images/Screenshot%202025-12-03%20at%2017.42.21.png)
+
+---
+
+## So What? Policy Recommendations
+
+1. **Scale post-secondary vocational/digital tracks** in Africa \+ South Asia  
+2. **Invest in gender-equal talent pipelines** where women already lead  
+3. **Target global talent hubs** — Asia dominates the 2035 supply
+
+**“The future of jobs will be decided by where youth skills grow fastest — and our data shows exactly where that is.”**
+
+---  
+
+## ...To Be Done!! ...
+
+The following need their charts!
+
+---
+
+## Region Comparison: Skill Profiles
+
+Chart: **Regional heatmap**  
+Highlight:
+
+* Asia \= huge mid/high skill base  
+* Africa \= dual challenge (high low-skill \+ rising mid-skill)  
+* LAC/ECA \= modern skill distribution  
+* MENA \= rising mid-skill, lagging tertiary
+
+---
+
+## The Geography of Global Talent
+
+Chart: **Regional share of skilled youth (2035)**  
+Insight:
+
+* EAP \= 48% of global skilled youth  
+* Asia \= \~65% combined  
+* Talent is geographically concentrated
+
+---
+
+## Growth 2025 → 2035
+
+Chart: **Post-secondary & Upper secondary growth by region**  
+Insight:
+
+* SSA & MENA \= fast growth but low base  
+* EAP \= biggest absolute gains  
+* LAC/NOA stagnate
+
+---
+
+## Gender Shifts: Women Rising
+
+Chart: **Countries where young women \> men in post-secondary**  
+Insight:
+
+* Women surpass men in many major economies  
+* The “future skills gap” is increasingly male
+
+---
+
+## Country Leaders & Risk Outliers
+
+Two short lists:  
+**Leaders (Tertiary):** CHN, USA, EGY, RUS, IDN, BRA, MEX  
+**Outliers (No Education):** NGA, DZA, IRQ, AFG, ETH, etc.
+
+Insight:
+
+“Large populations ≠ large skilled populations.”
+
+---

@@ -1,10 +1,16 @@
 ---
-title: "Exploring Global Governance"
+title: "Does Regulatory Quality Drive Prosperity?"
 subtitle: "An Interactive Data Visualization"
 author: "Shri Khalpada & Rob Moore"
 format:
   revealjs:
     theme: simple
+    transition: fade
+    background-transition: fade
+    center: true
+    width: 1600
+    height: 900
+    margin: 0.1
 ---
 
 ## Who We Are
@@ -20,33 +26,35 @@ Building thoughtful, data-driven explorations.
 
 **World Bank Worldwide Governance Indicators + Business Ready Project**
 
+::: {.columns}
+::: {.column width="50%"}
 - 6 governance dimensions (Government Effectiveness, Rule of Law, etc.)
 - 3 regulatory performance pillars (Framework, Services, Efficiency)
-- 200+ countries
+- 200+ countries analyzed
 - Multiple outcome indicators (GDP, life expectancy, literacy, etc.)
+:::
 
-## What We Built
+::: {.column width="50%"}
+![](chart.png){width=100%}
+:::
+:::
 
-An interactive explorer combining:
+## What We Built {.center}
 
-1. **Data table** with inline visualizations
-2. **D3.js visualizations** - Regulatory Framework vs Public Services
-3. **Custom explorer** - any metric vs any metric, colored by region or income
+::: {style="text-align: center; margin-top: 2em;"}
+An interactive explorer combining data tables, D3.js visualizations, and custom metric comparisons.
 
 All client-side, real-time, responsive.
 
-## Let's Explore
+### [Let's explore the tool →](https://perthirtysix.com/tool/regulatory-jobs-data-explorer)
+:::
 
-*[Demo the live site]*
+## Questions? {.center}
 
-**Key features:**
-- Filter and sort countries by regulatory performance
-- Visualize relationships between governance and outcomes
-- Compare regions and income groups
-- Identify patterns and outliers
+::: {style="text-align: center; margin-top: 2em;"}
+![Economic Inequality Distribution](chart.png){width=70%}
 
-## Questions?
-
-View the tool: [perthirtysix.com](https://perthirtysix.com)
+### [perthirtysix.com/tool/regulatory-jobs-data-explorer](https://perthirtysix.com/tool/regulatory-jobs-data-explorer)
 
 Contact us via LinkedIn or our personal sites.
+:::
